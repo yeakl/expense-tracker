@@ -7,7 +7,6 @@ use App\Request\ExpenseListFilter;
 use App\Request\Pagination;
 use App\Request\TotalExpenseFilter;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -53,13 +52,13 @@ class ExpenseRepository extends ServiceEntityRepository
 
         if ($filter->dateFrom) {
             $query
-                ->andWhere('e.date >= :dateFrom')
+                ->andWhere('e.at >= :dateFrom')
                 ->setParameter(':dateFrom', $filter->dateFrom . ' 00:00:00');
         }
 
         if ($filter->dateTo) {
             $query
-                ->andWhere('e.date <= :dateTo')
+                ->andWhere('e.at <= :dateTo')
                 ->setParameter(':dateTo', $filter->dateTo . ' 23:59:59');
         }
 
