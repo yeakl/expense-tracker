@@ -1,0 +1,232 @@
+openapi: 3.0.3
+info:
+  title: expense tracker
+  version: 1.0.0
+servers:
+  - url: http://localhost:8181
+tags:
+  - name: expenses
+    description: Everything about your expenses
+paths:
+  /expense/:
+    post:
+      tags:
+        - expenses
+      summary: Add a new expense
+      operationId: addExpense
+      requestBody:
+        description: Create a new expense
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExpense'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiIdResponse'
+        '400':
+          description: Invalid input
+        '422':
+          description: Validation exception
+    get:
+      tags:
+        - expenses
+      summary: List expenses by filter
+      operationId: findExpensesByFilter
+      parameters:
+        - name: dateFrom
+          in: query
+          description: Date from to filter expenses by
+          required: false
+          schema:
+            type: string
+            format: date
+            example: 2024-10-01
+        - name: dateTo
+          in: query
+          description: Date to to filter expenses by
+          required: false
+          schema:
+            type: string
+            format: date
+            example: 2024-10-30
+        - name: category
+          in: query
+          description: Category slug to filter by
+          required: false
+          schema: 
+            type: string
+            example: products
+        - name: page
+          in: query
+          description: Page number
+          required: false
+          schema:
+            type: integer
+        - name: perPage
+          in: query
+          description: Records per page
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Expense'
+        '400':
+          description: Invalid status value
+  
+  /expense/total:
+    get:
+      tags:
+        - expenses
+      summary: Find the total of expenses by filter
+      description: Returns total amount spent by filter
+      operationId: getTotalExpenses
+      parameters:
+        - name: year
+          in: query
+          description: Year to filter by
+          required: false
+          schema:
+            type: number
+            format: integer
+        - name: month
+          in: query
+          description: Month to filter by
+          required: false
+          schema:
+            type: number
+            format: integer
+        - name: currency
+          in: query
+          description: Currency to return result in
+          schema:
+            type: string
+            enum: ["RUR", "USD"]
+          required: true
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TotalExpense'
+        '400':
+          description: Invalid tag value
+
+  /category/:
+    get:
+      tags:
+        - categories
+      summary: List of categories
+      operationId: categoryList
+      responses:
+        '200':
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                    $ref: '#/components/schemas/Category'
+    post:
+      tags:
+        - categories
+      summary: Create a category
+      description: Create a new category
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCategory'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiIdResponse'
+        
+components:
+  schemas:
+    Expense:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          format: decimal
+        at:
+          type: object
+          $ref: "#/components/schemas/Datetime"
+        currency:
+          type: string
+          enum: ["RUR", "USD"]
+        description:
+          type: string
+    CreateExpense:
+      type: object
+      properties:
+        amount:
+          type: number
+          format: decimal
+        date:
+          type: string
+          format: date-time
+          example: '2017-07-21T17:32:28Z'
+        currency:
+          type: string
+          enum: ["RUR", "USD"]
+        description:
+          type: string
+          example: 'Expense comment'
+    TotalExpense:
+      type: object
+      properties:
+        amount:
+          type: integer
+          format: decimal
+          example: 100.05
+    CreateCategory:
+      type: object
+      properties:
+        name:
+          type: string
+    Category:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        slug:
+          type: string
+        name:
+          type: string
+    Datetime:
+      type: object
+      properties:
+        date:
+          type: string
+        timezone:
+          type: string
+        timezone_type:
+          type: integer
+    ApiIdResponse:
+      type: object
+      properties:
+        id: 
+          type: string
+          format: uuid
