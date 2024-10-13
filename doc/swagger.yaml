@@ -193,6 +193,9 @@ components:
         description:
           type: string
           example: 'Expense comment'
+        category:
+          type: string
+          example: 'groceries'
     TotalExpense:
       type: object
       properties:
