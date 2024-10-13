@@ -7,8 +7,11 @@ WORKDIR /app
 COPY --from=roadrunner /usr/bin/rr /usr/local/bin/rr
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 
+RUN pecl install redis
+
 RUN apt update && apt install -y unzip libpq-dev && \
-        docker-php-ext-install sockets pdo pdo_pgsql pgsql
+        docker-php-ext-install sockets pdo pdo_pgsql pgsql && \
+        docker-php-ext-enable redis
 
 COPY src .
 RUN composer install

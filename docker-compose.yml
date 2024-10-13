@@ -25,6 +25,16 @@ services:
     ports:
       - '5432:5432'
 
+  redis:
+    image: redis:latest
+    container_name: redis_container
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    ports:
+      - "6380:6379"
+    volumes:
+      - ./redisdata:/data
+
 
 volumes:
   database_data:
