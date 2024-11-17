@@ -6,6 +6,7 @@ use App\Entity\Expense;
 use App\Repository\CategoryRepository;
 use App\Request\CreateExpense;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Uid\Uuid;
 
 readonly class CreateExpenseService
@@ -13,6 +14,7 @@ readonly class CreateExpenseService
     public function __construct(
         private EntityManagerInterface $entityManager,
         private CategoryRepository $categoryRepository,
+        private LoggerInterface $logger,
     ) {}
 
     public function create(CreateExpense $expenseDto): Uuid
@@ -33,6 +35,7 @@ readonly class CreateExpenseService
         $this->entityManager->persist($expense);
         $this->entityManager->flush();
 
+        $this->logger->info('Создан новый расход', ['expense' => $expense]);
         return $expense->getId();
     }
 }

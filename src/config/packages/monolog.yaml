@@ -23,6 +23,16 @@ when@dev:
                 process_psr_3_messages: false
                 channels: ["!event", "!doctrine", "!console"]
 
+            loki:
+                type: service
+                id: Itspire\MonologLoki\Handler\LokiHandler
+
+            my_loki_handler:
+                type: whatfailuregroup
+                members: [ loki ]
+                level: debug
+                process_psr_3_messages: true
+
 when@test:
     monolog:
         handlers:

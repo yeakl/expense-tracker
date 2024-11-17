@@ -20,5 +20,22 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+    Itspire\MonologLoki\Handler\LokiHandler:
+        arguments:
+            $apiConfig:
+                entrypoint: 'http://loki:3100'
+                context:
+                    app: My-app
+                labels:
+                    env: '%env(APP_ENV)%'
+                client_name: my_app_server
+                auth:
+                    basic:
+                        user: username
+                        password: password
+                curl_options:
+                    !php/const CURLOPT_CONNECTTIMEOUT_MS: 500,
+                    !php/const CURLOPT_TIMEOUT_MS: 600
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

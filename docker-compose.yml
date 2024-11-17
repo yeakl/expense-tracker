@@ -41,7 +41,7 @@ services:
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
     ports:
-      - 9090:9090
+      - "9090:9090"
     restart: unless-stopped
     volumes:
       - ./prometheus:/etc/prometheus
@@ -51,14 +51,25 @@ services:
     image: grafana/grafana
     container_name: grafana
     ports:
-      - 3000:3000
+      - "3000:3000"
     restart: unless-stopped
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=grafana
     volumes:
       - ./grafana:/etc/grafana/provisioning/datasources
+      - grafana_storage:/var/lib/grafana
+
+  loki:
+    hostname: loki
+    image: grafana/loki:latest
+    environment:
+      TZ: ${SYSTEM_TIMEZONE:-Europe/Moscow}
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
 
 volumes:
   database_data:
   prom_data:
+  grafana_storage:
