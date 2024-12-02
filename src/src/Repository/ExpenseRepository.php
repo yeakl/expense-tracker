@@ -47,6 +47,7 @@ class ExpenseRepository extends ServiceEntityRepository
     {
         $span = $this->tracer->spanBuilder('expense-repo:list:query')->startSpan();
         $context = $span->activate();
+        $span->setAttribute('filter', var_export($filter, true));
         $query = $this
             ->createQueryBuilder('e')
             ->orderBy('e.at', 'DESC');
@@ -57,7 +58,6 @@ class ExpenseRepository extends ServiceEntityRepository
                 ->andWhere('c.slug = :category')
                 ->setParameter(':category', $filter->category);
         }
-
         if ($filter->dateFrom) {
             $query
                 ->andWhere('e.at >= :dateFrom')
