@@ -8,13 +8,19 @@ use App\Request\Pagination;
 use App\Request\TotalExpenseFilter;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use OpenTelemetry\API\Trace\TracerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * @extends ServiceEntityRepository<Expense>
  */
 class ExpenseRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(
+        ManagerRegistry $registry,
+        #[Autowire('@open_telemetry.traces.tracers.main')]
+        private readonly TracerInterface $tracer,
+    )
     {
         parent::__construct($registry, Expense::class);
     }
@@ -39,6 +45,8 @@ class ExpenseRepository extends ServiceEntityRepository
 
     public function findByFilterAsArray(ExpenseListFilter $filter, Pagination $pagination): array
     {
+        $span = $this->tracer->spanBuilder('expense-repo:list:query')->startSpan();
+        $context = $span->activate();
         $query = $this
             ->createQueryBuilder('e')
             ->orderBy('e.at', 'DESC');
@@ -62,10 +70,15 @@ class ExpenseRepository extends ServiceEntityRepository
                 ->setParameter(':dateTo', $filter->dateTo . ' 23:59:59');
         }
 
-        return $query
+
+        $result = $query
             ->getQuery()
             ->setMaxResults($pagination->perPage)
             ->setFirstResult(($pagination->page - 1) * $pagination->perPage)
             ->getArrayResult();
+
+        $span->end();
+        $context->detach();
+        return $result;
     }
 }

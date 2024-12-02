@@ -1,0 +1,33 @@
+open_telemetry:
+  service:
+    namespace: "expenseApp" # Required, Example: MyOrganization
+    name: "App"      # Required, Example: MyApp
+    version: "1.0.0"   # Required, Example: 1.0.0
+    environment: '%kernel.environment%'      # Required, Example: '%kernel.environment%'
+  instrumentation:
+    doctrine:
+      tracing:
+        enabled: true
+    twig:
+      tracing:
+        enabled: true
+  traces:
+    tracers:
+      main:
+        # A tracer must refer a provider using the service id pattern `open_telemetry.traces.providers.<provider_name>`.
+        provider: 'open_telemetry.traces.providers.default'
+    providers:
+      default:
+        type: default
+        sampler: always_on
+        processors:
+          # A provider must refer one or more processor using the service id pattern `open_telemetry.traces.processors.<processor_name>`.
+          - 'open_telemetry.traces.processors.simple'
+    processors:
+      simple:
+        type: simple
+        # A processor must refer an exporter using the service id pattern `open_telemetry.traces.exporters.<exporter_name>`.
+        exporter: 'open_telemetry.traces.exporters.otlp'
+    exporters:
+      otlp:
+        dsn: http+otlp://tempo:4318

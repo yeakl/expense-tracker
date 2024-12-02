@@ -69,7 +69,34 @@ services:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
 
+  otel-collector:
+    image: otel/opentelemetry-collector:latest
+    restart: always
+    command: [ "--config=/etc/otel-collector.yaml" ]
+    volumes:
+      - ./grafana/otel_collector.yaml:/etc/otel-collector.yaml:ro
+    ports:
+      - "1888:1888" # pprof extension
+      - "8888:8888" # Prometheus metrics exposed by the collector http://localhost:8888/metrics
+      - "8889:8889" # Prometheus exporter metrics http://localhost:8889/metrics
+      - "13133:13133" # health_check extension
+      - "4317:4317" # OTLP gRPC receiver
+      - "4318:4318" # OTLP HTTP receiver
+      - "55679:55679" # zpages extension
+
+  tempo:
+    image: grafana/tempo:latest
+    command: [ "-config.file=/etc/tempo.yaml" ]
+    volumes:
+      - ./grafana/tempo.yaml:/etc/tempo.yaml:ro
+      - tempo_data:/var/tempo
+    ports:
+      - "3200" # tempo
+      - "4317" # otlp grpc
+      - "4318" # otlp http
+
 volumes:
   database_data:
   prom_data:
   grafana_storage:
+  tempo_data:
