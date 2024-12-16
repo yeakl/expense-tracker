@@ -1,6 +1,7 @@
 services:
   rr:
     build:
+      context: .
       dockerfile: ./Dockerfile
     ports:
       - '9001:9001'
