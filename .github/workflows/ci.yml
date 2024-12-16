@@ -20,6 +20,7 @@ jobs:
       - uses: ramsey/composer-install@v2
         with:
           composer-options: --optimize-autoloader
+        working-directory: ./src
 
       - name: Validate Symfony configuration
         run: |
