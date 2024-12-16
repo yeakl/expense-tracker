@@ -1,7 +1,9 @@
 services:
   rr:
     build:
+      context: .
       dockerfile: ./Dockerfile
+    image: app:latest
     ports:
       - '9001:9001'
       - '8181:8080'
