@@ -25,6 +25,7 @@ jobs:
 
       - name: Validate Symfony configuration
         run: |
+          cd src
           php bin/console lint:yaml config/
           php bin/console doctrine:schema:validate
           php bin/console cache:clear
